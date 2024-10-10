@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Identity;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -17,7 +18,7 @@ public class UsersController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            var result = await _userService.Register(model);
+            var result = await _userService.RegisterAsync(model);
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
@@ -36,8 +37,53 @@ public class UsersController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            var result = await _userService.Login(model);
-            return Ok(result);
+            try
+            {
+                var result = await _userService.LoginAsync(model);
+                return Ok(new { result });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+        }
+        return BadRequest(ModelState);
+    }
+
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto model)
+    {
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                var result = await _userService.ChangePasswordAsync(model);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+        }
+
+        return BadRequest(ModelState);
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
+    {
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                var result = await _userService.ResetPasswordAsync(model);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
         }
 
         return BadRequest(ModelState);
