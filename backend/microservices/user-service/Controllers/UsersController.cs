@@ -1,22 +1,65 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IUserService _userService;
+    private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<IdentityUser> _signInManager;
 
-    public UsersController(IUserService userService)
+    private readonly JwtTokenService _jwtTokenService;
+
+    public UsersController(UserManager<IdentityUser> userManager,
+    SignInManager<IdentityUser> signInManager,
+    JwtTokenService jwtTokenService)
     {
-        _userService = userService;
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _jwtTokenService = jwtTokenService;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(UserRegisterDto userDto)
+    public async Task<IActionResult> Register([FromBody] UserRegisterDto model)
     {
-        var userResponse = await _userService.RegisterAsync(userDto);
-        return Ok(userResponse);
+        if (ModelState.IsValid)
+        {
+            var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return Ok("User registered successfully");
+            }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+        }
+
+        return BadRequest(ModelState);
     }
 
-    // Add endpoints for authentication and profile management
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginDto model)
+    {
+        if (ModelState.IsValid)
+        {
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                var token = _jwtTokenService.GenerateToken(user);
+                return Ok(new { Token = token });
+            }
+            else
+            {
+                return Unauthorized("Invalid login attempt");
+            }
+        }
+
+        return BadRequest(ModelState);
+    }
 }
