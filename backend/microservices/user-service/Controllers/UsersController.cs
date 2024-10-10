@@ -5,18 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly IUserService _userService;
 
-    private readonly JwtTokenService _jwtTokenService;
-
-    public UsersController(UserManager<IdentityUser> userManager,
-    SignInManager<IdentityUser> signInManager,
-    JwtTokenService jwtTokenService)
+    public UsersController(IUserService userService)
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _jwtTokenService = jwtTokenService;
+        _userService = userService;
     }
 
     [HttpPost("register")]
@@ -24,18 +17,15 @@ public class UsersController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            var user = new IdentityUser { UserName = model.Email, Email = model.Email };
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
+            var result = await _userService.Register(model);
+            if (!result.Succeeded)
             {
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return Ok("User registered successfully");
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
+            return Ok(result);
         }
 
         return BadRequest(ModelState);
@@ -46,18 +36,8 @@ public class UsersController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-
-            if (result.Succeeded)
-            {
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                var token = _jwtTokenService.GenerateToken(user);
-                return Ok(new { Token = token });
-            }
-            else
-            {
-                return Unauthorized("Invalid login attempt");
-            }
+            var result = await _userService.Login(model);
+            return Ok(result);
         }
 
         return BadRequest(ModelState);

@@ -14,7 +14,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
@@ -40,9 +40,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// builder.Services.AddScoped<IUserRepository, UserRepository>();
-// builder.Services.AddScoped<IUserService, UserService>();
-//builder.Services.AddScoped<PasswordHasher>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<JwtTokenService>();
 
 builder.Services.AddControllers();
