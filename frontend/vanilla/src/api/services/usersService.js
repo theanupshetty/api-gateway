@@ -1,8 +1,8 @@
 import axiosInstance from '../../api/axiosInstance';
 
-export const fetchUsers = async () => {  
+export const login = async (userData) => {  
     try {
-        const users = await axiosInstance.get('/api/users');
+        const users = await axiosInstance.post('/api/users/login', userData);
         return users;
     } catch (error) {
         console.error('Error fetching users:', error);

@@ -6,17 +6,28 @@ const Register = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
-    const [passowrd, setPassword] = useState("");
+    const [password, setPassword] = useState("");
+    const [message, setMessage] = useState({ type: '', content: '' });
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        const userData = { firstName, lastName, email, passowrd }
+        const userData = { firstName, lastName, email, password }
         try {
-          const result =  await createUser(userData);
-          console.log(result);
+            const result = await createUser(userData);
+            if (result.succeeded) {
+                setMessage({ type: 'success', content: 'Registration successful!' });
+                setFirstName("");
+                setLastName("");
+                setEmail("");
+                setPassword("");
+            }
+            else {
+                setMessage({ type: 'error', content: result.errors[0].description });
+            }
+
         }
         catch (e) {
-            throw e;
+            setMessage('Registration failed!');
         }
     }
     return (
@@ -36,7 +47,14 @@ const Register = () => {
                         </a>
                     </div>
                     <div className="card-body register-card-body">
-                        <p className="register-box-msg">Register a new membership</p>
+                    {message.content && (
+                            <div
+                                className={`alert mt-3 ${message.type === 'success' ? 'alert-success' : 'alert-danger'}`}
+                                role="alert"  
+                            >
+                                {message.content}
+                            </div>
+                        )}
                         <form onSubmit={handleRegister}>
                             <div className="input-group mb-1">
                                 <div className="form-floating">
@@ -45,6 +63,7 @@ const Register = () => {
                                         type="text"
                                         className="form-control"
                                         placeholder=""
+                                        required
                                         onChange={(e) => setFirstName(e.target.value)}
                                     />
                                     <label htmlFor="registerFirstName">First Name</label>
@@ -60,6 +79,7 @@ const Register = () => {
                                         type="text"
                                         className="form-control"
                                         placeholder=""
+                                        required
                                         onChange={(e) => setLastName(e.target.value)}
                                     />
                                     <label htmlFor="registerLastName">Last Name</label>
@@ -75,6 +95,7 @@ const Register = () => {
                                         type="email"
                                         className="form-control"
                                         placeholder=""
+                                        required
                                         onChange={(e) => setEmail(e.target.value)}
                                     />
                                     <label htmlFor="registerEmail">Email</label>
@@ -90,6 +111,7 @@ const Register = () => {
                                         type="password"
                                         className="form-control"
                                         placeholder=""
+                                        required
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
                                     <label htmlFor="registerPassword">Password</label>
@@ -107,6 +129,7 @@ const Register = () => {
                                             type="checkbox"
                                             value=""
                                             id="flexCheckDefault"
+                                            required
                                         />
                                         <label className="form-check-label" htmlFor="flexCheckDefault">
                                             I agree to the <a href="#">terms</a>
@@ -125,21 +148,15 @@ const Register = () => {
                             </div>
                             {/* end::Row */}
                         </form>
-                        <div className="social-auth-links text-center mb-3 d-grid gap-2">
-                            <p>- OR -</p>
-                            <a href="#" className="btn btn-primary">
-                                <i className="bi bi-facebook me-2"></i> Sign in using Facebook
-                            </a>
-                            <a href="#" className="btn btn-danger">
-                                <i className="bi bi-google me-2"></i> Sign in using Google+
-                            </a>
-                        </div>
+                       
                         {/* /.social-auth-links */}
                         <p className="mb-0">
                             <a href="login.html" className="link-primary text-center">
                                 I already have a membership
                             </a>
                         </p>
+                      
+
                     </div>
                     {/* /.register-card-body */}
                 </div>

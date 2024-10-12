@@ -16,17 +16,25 @@ public class UsersController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] UserRegisterDto model)
     {
-        if (ModelState.IsValid)
+        try
         {
-            var result = await _userService.RegisterAsync(model);
-            if (!result.Succeeded)
+            if (ModelState.IsValid)
             {
-                foreach (var error in result.Errors)
+                var result = await _userService.RegisterAsync(model);
+                if (!result.Succeeded)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+
                 }
+                return Ok(result);
             }
-            return Ok(result);
+        }
+        catch (Exception)
+        {
+
         }
 
         return BadRequest(ModelState);

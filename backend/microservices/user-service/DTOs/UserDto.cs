@@ -11,11 +11,6 @@ public class UserRegisterDto
     [Required]
     public string Email { get; set; }
 }
-public class UserResponseDto
-{
-    public Guid Id { get; set; }
-    public string Email { get; set; }
-}
 
 public class LoginDto
 {

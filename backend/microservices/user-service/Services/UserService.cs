@@ -15,14 +15,14 @@ public class UserService : IUserService
         _jwtTokenService = jwtTokenService;
     }
 
-    public async Task<string> LoginAsync(LoginDto model)
+    public async Task<LoginResponseDto> LoginAsync(LoginDto model)
     {
         var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
         if (result.Succeeded)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             var token = _jwtTokenService.GenerateToken(user);
-            return token;
+            return new LoginResponseDto { Result = result, Token = token };
         }
         throw new Exception("Invalid login attempt.");
     }
