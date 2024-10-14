@@ -1,22 +1,25 @@
 
 import { useState } from "react";
 import { login } from "../../api/services/usersService";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
 const [rememberMe, setRememberMe] = useState("");
 const [message, setMessage] = useState("");
+const navigate = useNavigate("");
 
     const handleLogin = async (e) => {
         try{
             e.preventDefault();
             const userData = { email, password}
-            const result =  await login(userData);
-            console.log(result);
-            if(result.succeeded)
+            const userResult =  await login(userData);
+            console.log(userResult);
+            if(userResult.result.result.succeeded)
             {
                 console.log("success");
+                navigate("/");
             }
         }
         catch(e)
@@ -38,7 +41,7 @@ const [message, setMessage] = useState("");
                         <form onSubmit={handleLogin}>
                             <div className="input-group mb-1">
                                 <div className="form-floating">
-                                    <input id="loginEmail" type="email" 
+                                    <input id="loginEmail" type="email"  required
                                     className="form-control" value={email} placeholder="" onChange={(e)=>{setEmail(e.target.value)}} />
                                     <label htmlFor="loginEmail">Email</label>
                                 </div>
@@ -48,7 +51,7 @@ const [message, setMessage] = useState("");
                             </div>
                             <div className="input-group mb-1">
                                 <div className="form-floating">
-                                    <input id="loginPassword" type="password" value={password} className="form-control" placeholder="" onChange={(e)=> {setPassword(e.target.value)}} />
+                                    <input id="loginPassword" required type="password" value={password} className="form-control" placeholder="" onChange={(e)=> {setPassword(e.target.value)}} />
                                     <label htmlFor="loginPassword">Password</label>
                                 </div>
                                 <div className="input-group-text">
@@ -74,17 +77,17 @@ const [message, setMessage] = useState("");
                         <div className="social-auth-links text-center mb-3 d-grid gap-2">
                             <p>- OR -</p>
                             <a href="#" className="btn btn-primary">
-                                <i className="bi bi-facebook me-2"></i> Sign in using Facebook
+                                <i className="bi bi-facebook me-2"></i>
                             </a>
                             <a href="#" className="btn btn-danger">
-                                <i className="bi bi-google me-2"></i> Sign in using Google+
+                                <i className="bi bi-google me-2"></i>
                             </a>
                         </div>
                         <p className="mb-1">
-                            <a href="forgot-password.html">I forgot my password</a>
+                            <a href="/forgot-password">Forgot password?</a>
                         </p>
                         <p className="mb-0">
-                            <a href="register.html" className="text-center">Register a new membership</a>
+                            <a href="/register" className="text-center">Register a new account</a>
                         </p>
                     </div>
                 </div>

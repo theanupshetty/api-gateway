@@ -19,3 +19,13 @@ export const createUser = async (userData) => {
         throw error;
     }
 };
+
+export const resetPassword = async (userData) => {
+    try {
+        const user = await axiosInstance.post('/api/users/reset-password', userData);
+        return user;
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
+};

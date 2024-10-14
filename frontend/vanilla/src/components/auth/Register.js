@@ -55,7 +55,7 @@ const Register = () => {
                                 {message.content}
                             </div>
                         )}
-                        <form onSubmit={handleRegister}>
+                        <form onSubmit={handleRegister} className="mb-4">
                             <div className="input-group mb-1">
                                 <div className="form-floating">
                                     <input
@@ -151,8 +151,8 @@ const Register = () => {
                        
                         {/* /.social-auth-links */}
                         <p className="mb-0">
-                            <a href="login.html" className="link-primary text-center">
-                                I already have a membership
+                            <a href="/login" className="link-primary text-center">
+                               I already have an account
                             </a>
                         </p>
                       
