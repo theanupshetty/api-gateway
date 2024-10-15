@@ -17,7 +17,7 @@ public class EmailService : IEmailService
         Host = configuration["SMTP:Host"];
         Password = configuration["SMTP:Password"];
     }
-    public async Task SendEmailAsync(ApplicationUser user, TemplateDto template)
+    public async Task SendEmailAsync(ApplicationUser user, TemplateDto template, string emailContent)
     {
         SmtpClient client = new(Host, Port)
         {
@@ -32,7 +32,7 @@ public class EmailService : IEmailService
         mailMessage.To.Add(user.Email);
         mailMessage.Subject = template.Subject;
         mailMessage.IsBodyHtml = true;
-        mailMessage.Body = template.Content;
+        mailMessage.Body = emailContent;
         await client.SendMailAsync(mailMessage);
     }
 }

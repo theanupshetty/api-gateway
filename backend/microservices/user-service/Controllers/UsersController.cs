@@ -86,7 +86,7 @@ public class UsersController : ControllerBase
             try
             {
                 var result = await _userService.ForgotPasswordAsync(model);
-                return Ok("Success");
+                return Ok(new { succeeded = true });
             }
             catch (Exception ex)
             {
