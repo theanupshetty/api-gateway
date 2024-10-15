@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { createUser } from "../../api/services/usersService";
+import Loader from "../../utils/loader";
 
 
 const Register = () => {
@@ -8,9 +9,11 @@ const Register = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState({ type: '', content: '' });
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         const userData = { firstName, lastName, email, password }
         try {
             const result = await createUser(userData);
@@ -28,6 +31,9 @@ const Register = () => {
         }
         catch (e) {
             setMessage('Registration failed!');
+        }
+        finally {
+            setIsLoading(false);
         }
     }
     return (
@@ -47,10 +53,10 @@ const Register = () => {
                         </a>
                     </div>
                     <div className="card-body register-card-body">
-                    {message.content && (
+                        {message.content && (
                             <div
                                 className={`alert mt-3 ${message.type === 'success' ? 'alert-success' : 'alert-danger'}`}
-                                role="alert"  
+                                role="alert"
                             >
                                 {message.content}
                             </div>
@@ -139,23 +145,23 @@ const Register = () => {
                                 {/* /.col */}
                                 <div className="col-4">
                                     <div className="d-grid gap-2">
-                                        <button type="submit" className="btn btn-primary">
+                                        <Loader isLoading={isLoading}>
                                             Register
-                                        </button>
+                                        </Loader>
                                     </div>
                                 </div>
                                 {/* /.col */}
                             </div>
                             {/* end::Row */}
                         </form>
-                       
+
                         {/* /.social-auth-links */}
                         <p className="mb-0">
                             <a href="/login" className="link-primary text-center">
-                               I already have an account
+                                I already have an account
                             </a>
                         </p>
-                      
+
 
                     </div>
                     {/* /.register-card-body */}

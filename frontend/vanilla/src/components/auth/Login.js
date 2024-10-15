@@ -1,67 +1,97 @@
-
 import { useState } from "react";
 import { login } from "../../api/services/usersService";
 import { useNavigate } from "react-router-dom";
+import Loader from "../../utils/loader";
 
 const Login = () => {
-const [email, setEmail] = useState("");
-const [password, setPassword] = useState("");
-const [rememberMe, setRememberMe] = useState("");
-const [message, setMessage] = useState("");
-const navigate = useNavigate("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [rememberMe, setRememberMe] = useState(false); // Changed to boolean
+    const [message, setMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
-        try{
-            e.preventDefault();
-            const userData = { email, password}
-            const userResult =  await login(userData);
+        e.preventDefault();
+        setIsLoading(true);
+        
+        try {
+            const userData = { email, password };
+            const userResult = await login(userData);
             console.log(userResult);
-            if(userResult.result.result.succeeded)
-            {
-                console.log("success");
+            if (userResult.result.result.succeeded) {
+                console.log("Login successful");
                 navigate("/");
+            } else {
+                setMessage("Login failed. Please check your credentials.");
             }
+        } catch (error) {
+            console.error(error);
+            setMessage("An error occurred. Please try again.");
+        } finally {
+            setIsLoading(false);
         }
-        catch(e)
-        {
-            console.log(e);
-        }
-    }
+    };
+
     return (
-        <body class="login-page bg-body-secondary">
+        <div className="login-page bg-body-secondary">
             <div className="login-box">
                 <div className="card card-outline card-primary">
                     <div className="card-header">
-                        <a href="" className="link-dark text-center link-offset-2 link-opacity-100 link-opacity-50-hover">
-                            <h1 className="mb-0"> <b>Vanilla</b></h1>
-                        </a>
+                        <h1 className="mb-0 text-center"> <b>Login</b></h1>
                     </div>
                     <div className="card-body login-card-body">
                         <p className="login-box-msg">Sign in to start your session</p>
                         <form onSubmit={handleLogin}>
+                            {/* Email Input */}
                             <div className="input-group mb-1">
                                 <div className="form-floating">
-                                    <input id="loginEmail" type="email"  required
-                                    className="form-control" value={email} placeholder="" onChange={(e)=>{setEmail(e.target.value)}} />
+                                    <input
+                                        id="loginEmail"
+                                        type="email"
+                                        required
+                                        className="form-control"
+                                        value={email}
+                                        placeholder="Email"
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
                                     <label htmlFor="loginEmail">Email</label>
                                 </div>
                                 <div className="input-group-text">
                                     <span className="bi bi-envelope"></span>
                                 </div>
                             </div>
+
+                            {/* Password Input */}
                             <div className="input-group mb-1">
                                 <div className="form-floating">
-                                    <input id="loginPassword" required type="password" value={password} className="form-control" placeholder="" onChange={(e)=> {setPassword(e.target.value)}} />
+                                    <input
+                                        id="loginPassword"
+                                        required
+                                        type="password"
+                                        value={password}
+                                        className="form-control"
+                                        placeholder="Password"
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
                                     <label htmlFor="loginPassword">Password</label>
                                 </div>
                                 <div className="input-group-text">
                                     <span className="bi bi-lock-fill"></span>
                                 </div>
                             </div>
-                            <div className="row">
+
+                            {/* Remember Me Checkbox and Submit Button */}
+                            <div className="row mb-3">
                                 <div className="col-8 d-inline-flex align-items-center">
                                     <div className="form-check">
-                                        <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" onChange={(e)=>{setRememberMe(e.target.value)}} />
+                                        <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            checked={rememberMe}
+                                            id="flexCheckDefault"
+                                            onChange={(e) => setRememberMe(e.target.checked)} // Correctly set the value
+                                        />
                                         <label className="form-check-label" htmlFor="flexCheckDefault">
                                             Remember Me
                                         </label>
@@ -69,20 +99,29 @@ const navigate = useNavigate("");
                                 </div>
                                 <div className="col-4">
                                     <div className="d-grid gap-2">
-                                        <button type="submit" className="btn btn-primary">Sign In</button>
+                                    <Loader isLoading={isLoading}>
+                                            Login
+                                        </Loader>
                                     </div>
                                 </div>
                             </div>
                         </form>
+
+                        {/* Message Display */}
+                        {message && <p className="text-danger">{message}</p>}
+
+                        {/* Social Auth Links */}
                         <div className="social-auth-links text-center mb-3 d-grid gap-2">
                             <p>- OR -</p>
                             <a href="#" className="btn btn-primary">
-                                <i className="bi bi-facebook me-2"></i>
+                                <i className="bi bi-facebook me-2"></i> Sign in with Facebook
                             </a>
                             <a href="#" className="btn btn-danger">
-                                <i className="bi bi-google me-2"></i>
+                                <i className="bi bi-google me-2"></i> Sign in with Google
                             </a>
                         </div>
+
+                        {/* Links for Forgot Password and Register */}
                         <p className="mb-1">
                             <a href="/forgot-password">Forgot password?</a>
                         </p>
@@ -92,7 +131,7 @@ const navigate = useNavigate("");
                     </div>
                 </div>
             </div>
-        </body>
+        </div>
     );
 };
 
