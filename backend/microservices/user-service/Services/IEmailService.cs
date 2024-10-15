@@ -1,4 +1,4 @@
 public interface IEmailService
 {
-    Task SendResetPasswordEmail(string email);
+    Task SendEmailAsync(ApplicationUser user, TemplateDto model);
 }

@@ -13,18 +13,18 @@ public class JwtTokenService
         _configuration = configuration;
     }
 
-    public string GenerateToken(IdentityUser user)
+    public string GenerateToken(ApplicationUser user)
     {
         var jwtSettings = _configuration.GetSection("Jwt");
 
-        // Define claims for the user
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName + " " + user.LastName),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        // Create symmetric security key
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

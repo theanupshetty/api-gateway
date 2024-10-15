@@ -1,3 +1,4 @@
+using System.Drawing.Text;
 using Microsoft.AspNetCore.Identity;
 
 public class UserService : IUserService
@@ -5,14 +6,21 @@ public class UserService : IUserService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly JwtTokenService _jwtTokenService;
+    private readonly IEmailService _emailService;
+    private readonly IStrapiService _strapiService;
 
     public UserService(UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
-    JwtTokenService jwtTokenService)
+    JwtTokenService jwtTokenService,
+    IEmailService emailService,
+    IStrapiService strapiService
+    )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _jwtTokenService = jwtTokenService;
+        _emailService = emailService;
+        _strapiService = strapiService;
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginDto model)
@@ -62,5 +70,19 @@ public class UserService : IUserService
         var user = await _userManager.FindByEmailAsync(model.Email);
         var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
         return result;
+    }
+
+    public async Task<string> ForgotPasswordAsync(ForgotPasswordDto model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
+        {
+            throw new Exception("User not found.");
+        }
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var template = await _strapiService.GetEmailTemplateByNameAsync("ForgotPassword");
+        await _emailService.SendEmailAsync(user, template);
+
+        return token;
     }
 }

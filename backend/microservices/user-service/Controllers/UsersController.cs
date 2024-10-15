@@ -78,6 +78,25 @@ public class UsersController : ControllerBase
         return BadRequest(ModelState);
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
+    {
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                var result = await _userService.ForgotPasswordAsync(model);
+                return Ok("Success");
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+        }
+
+        return BadRequest(ModelState);
+    }
+
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
     {

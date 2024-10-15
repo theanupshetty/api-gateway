@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { resetPassword } from "../../api/services/usersService";
+import { forgotPassword } from "../../api/services/usersService";
 
 const ForgotPassword = () => {
 const [email, setEmail] = useState("");
@@ -10,7 +10,7 @@ const [message, setMessage] = useState("");
         try{
             e.preventDefault();
             const userData = { email}
-            const result =  await resetPassword(userData);
+            const result =  await forgotPassword(userData);
             console.log(result);
             if(result.succeeded)
             {

@@ -79,3 +79,7 @@ Thumbs.db
 # Ignore files created by JetBrains Rider
 .idea/
 *.sln.iml
+
+#log files
+.logs/
+*.txt

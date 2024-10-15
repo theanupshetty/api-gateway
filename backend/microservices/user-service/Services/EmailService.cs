@@ -1,12 +1,38 @@
+using System.Net;
+using System.Net.Mail;
+using System.Text;
+
 public class EmailService : IEmailService
 {
-    private readonly IUserService _userService;
-    public EmailService(IUserService userService)
+    private string Email { get; }
+    private string Host { get; }
+    private int Port { get; }
+
+    private string Password { get; }
+
+    public EmailService(IConfiguration configuration)
     {
-        _userService = userService;
+        Email = configuration["SMTP:Email"];
+        Port = Convert.ToInt16(configuration["SMTP:Port"]);
+        Host = configuration["SMTP:Host"];
+        Password = configuration["SMTP:Password"];
     }
-    public async Task SendResetPasswordEmail(string email)
+    public async Task SendEmailAsync(ApplicationUser user, TemplateDto template)
     {
-        var token = await _userService.GeneratePasswordResetTokenAsync(email);
+        SmtpClient client = new(Host, Port)
+        {
+            EnableSsl = true,
+            UseDefaultCredentials = false,
+            Credentials = new NetworkCredential(Email, Password)
+        };
+        MailMessage mailMessage = new()
+        {
+            From = new MailAddress(Email)
+        };
+        mailMessage.To.Add(user.Email);
+        mailMessage.Subject = template.Subject;
+        mailMessage.IsBodyHtml = true;
+        mailMessage.Body = template.Content;
+        await client.SendMailAsync(mailMessage);
     }
 }

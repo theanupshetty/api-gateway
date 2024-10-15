@@ -1,6 +1,6 @@
 import axiosInstance from '../../api/axiosInstance';
 
-export const login = async (userData) => {  
+export const login = async (userData) => {
     try {
         const users = await axiosInstance.post('/api/users/login', userData);
         return users;
@@ -13,6 +13,15 @@ export const login = async (userData) => {
 export const createUser = async (userData) => {
     try {
         const user = await axiosInstance.post('/api/users/register', userData);
+        return user;
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
+};
+export const forgotPassword = async (userData) => {
+    try {
+        const user = await axiosInstance.post('/api/users/forgot-password', userData);
         return user;
     } catch (error) {
         console.error('Error creating user:', error);
