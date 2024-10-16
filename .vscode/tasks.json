@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build-email-service",
+        "command": "dotnet",
+        "type": "process",
+        "args": [
+          "build",
+          "${workspaceFolder}/backend/microservices/email-service"
+        ],
+        "problemMatcher": "$msCompile"
+      },
+      {
+        "label": "build-user-service",
+        "command": "dotnet",
+        "type": "process",
+        "args": [
+          "build",
+          "${workspaceFolder}/backend/microservices/user-service"
+        ],
+        "problemMatcher": "$msCompile"
+      },
+    ]
+  }
+  

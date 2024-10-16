@@ -1,14 +1,55 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach"
+      {
+        "name": "Email Service",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build-email-service",
+        "program": "${workspaceFolder}/backend/microservices/email-service/bin/Debug/net8.0/email-service.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}/backend/microservices/email-service",
+        "stopAtEntry": false,
+        "serverReadyAction": {
+          "action": "openExternally",
+          "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        },
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        },
+        "sourceFileMap": {
+          "/Views": "${workspaceFolder}/backend/microservices/email-service/Views"
         }
-
+      },
+      {
+        "name": "User Service",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build-user-service",
+        "program": "${workspaceFolder}/backend/microservices/user-service/bin/Debug/net8.0/user-service.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}/backend/microservices/user-service",
+        "stopAtEntry": false,
+        "serverReadyAction": {
+          "action": "openExternally",
+          "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        },
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        },
+        "sourceFileMap": {
+          "/Views": "${workspaceFolder}/backend/microservices/user-service/Views"
+        }
+      },
+    ],
+    "compounds": [
+      {
+        "name": "Debug All Services",
+        "configurations": [
+          "Email Service",
+          "User Service",
+        ]
+      }
     ]
-}
+  }
+  

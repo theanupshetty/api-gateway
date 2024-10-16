@@ -1,32 +1,34 @@
 using System.Drawing.Text;
 using System.Security.Policy;
+using System.Text;
+using System.Text.Json;
 using System.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 public class UserService : IUserService
 {
+    private string EmailServiceUrl { get; }
     private readonly IConfiguration _configuration;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly JwtTokenService _jwtTokenService;
-    private readonly IEmailService _emailService;
-    private readonly IStrapiService _strapiService;
+
+    private readonly HttpClient _httpClient;
 
     public UserService(UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     JwtTokenService jwtTokenService,
-    IEmailService emailService,
-    IStrapiService strapiService,
-    IConfiguration configuration
+    IConfiguration configuration,
+    HttpClient httpClient
     )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _jwtTokenService = jwtTokenService;
-        _emailService = emailService;
-        _strapiService = strapiService;
         _configuration = configuration;
+        _httpClient = httpClient;
+        EmailServiceUrl = configuration["EmailService:Url"];
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginDto model)
@@ -78,7 +80,7 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task<string> ForgotPasswordAsync(ForgotPasswordDto model)
+    public async Task<HttpResponseMessage> ForgotPasswordAsync(ForgotPasswordDto model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
@@ -86,15 +88,23 @@ public class UserService : IUserService
             throw new Exception("User not found.");
         }
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        var template = await _strapiService.GetEmailTemplateByNameAsync("ForgotPassword");
-        var templateData = new
+        var emailData = new
         {
-            Name = user.FirstName,
-            ResetLink = _configuration["Admin:Url"] + "/reset-password/" + HttpUtility.UrlEncode(user.Email) + "/" + HttpUtility.UrlEncode(token)
+            To = user.Email,
+            TemplateName = "ForgotPassword",
+            TemplateData = new
+            {
+                Name = user.FirstName,
+                ResetLink = _configuration["Admin:Url"] + "/reset-password/" + HttpUtility.UrlEncode(user.Email) + "/" + HttpUtility.UrlEncode(token)
+            },
+            Subject = "Password Reset Request",
+            Content = "",
+            IsBodyHtml = true
         };
-        string emailContent = TemplateParser.ParseEmailTemplate(template.Content, templateData);
-        await _emailService.SendEmailAsync(user, template, emailContent);
 
-        return token;
+        var content = new StringContent(JsonSerializer.Serialize(emailData), Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync("${EmailServiceUrl}/api/send-email", content);
+
+        return response;
     }
 }
