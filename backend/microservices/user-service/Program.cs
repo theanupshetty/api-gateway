@@ -58,10 +58,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<JwtTokenService>();
-builder.Services.AddScoped<IStrapiService, StrapiService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddHttpClient<StrapiService>();
-
+builder.Services.AddHttpClient<UserService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
