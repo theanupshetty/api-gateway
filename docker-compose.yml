@@ -1,0 +1,89 @@
+
+services:
+  user-service:
+    image: anupshetty44/user-service
+    build:
+      context: ./backend/microservices/user-service
+      dockerfile: Dockerfile
+    ports:
+      - "5277:80" # map external port 5277 to container port 80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      - email-service
+
+  email-service:
+    image: anupshetty44/email-service
+    build:
+      context: ./backend/microservices/email-service
+      dockerfile: Dockerfile
+    ports:
+      - "5255:80" # map external port 5255 to container port 80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      - strapi-service
+
+  # inventory-service:
+  #   image: anupshetty44/inventory-service
+  #   build:
+  #     context: ./backend/microservices/inventory-service
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5280:80" # map external port 5280 to container port 80
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=http://+:80
+  #   depends_on:
+  #     - user-service
+  #     - order-service
+
+  # order-service:
+  #   image: anupshetty44/order-service
+  #   build:
+  #     context: ./backend/microservices/order-service
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5281:80" # map external port 5281 to container port 80
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=http://+:80
+  #   depends_on:
+  #     - user-service
+  #     - inventory-service
+
+  strapi-service:
+    image: strapi/strapi
+    build:
+      context: ./backend/microservices/strapi-cms-service
+      dockerfile: Dockerfile
+    ports:
+      - "1337:1337" # Strapi runs on port 1337 by default
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/microservices/strapi-cms-service:/srv/app
+
+  
+  frontend:
+    image: node:16 # use node 16 image for React
+    build:
+      context: ./frontend/vanilla
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000" # React runs on port 3000
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./frontend/vanilla:/app
+    working_dir: /app
+    command: ["npm", "start"]
+    depends_on:
+      - strapi-service
+      - user-service
+      - email-service
+networks:
+  default:
+    driver: bridge
