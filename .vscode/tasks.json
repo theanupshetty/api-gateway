@@ -21,6 +21,19 @@
         ],
         "problemMatcher": "$msCompile"
       },
+      {
+        "label": "build-strapi-service",
+        "command": "npm",
+        "type": "process",
+        "args": [
+          "run",
+          "build"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}/backend/microservices/strapi-cms-service"
+        },
+        "problemMatcher": []
+      }
     ]
   }
   

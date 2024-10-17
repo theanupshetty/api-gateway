@@ -1,14 +1,10 @@
-using System.Drawing.Text;
-using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 using System.Web;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 public class UserService : IUserService
 {
-    private string EmailServiceUrl { get; }
     private readonly IConfiguration _configuration;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
@@ -19,16 +15,14 @@ public class UserService : IUserService
     public UserService(UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     JwtTokenService jwtTokenService,
-    IConfiguration configuration,
-    HttpClient httpClient
+    IConfiguration configuration
     )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _jwtTokenService = jwtTokenService;
         _configuration = configuration;
-        _httpClient = httpClient;
-        EmailServiceUrl = configuration["EmailService:Url"];
+        _httpClient = new HttpClient{BaseAddress = new Uri(configuration["EmailService:Url"])};
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginDto model)
@@ -103,8 +97,9 @@ public class UserService : IUserService
         };
 
         var content = new StringContent(JsonSerializer.Serialize(emailData), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync("${EmailServiceUrl}/api/send-email", content);
+        var response = await _httpClient.PostAsync("/api/email/send-email", content);
 
         return response;
+        
     }
 }

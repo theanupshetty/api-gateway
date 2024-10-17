@@ -15,7 +15,8 @@
           "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
         },
         "env": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
+          "ASPNETCORE_ENVIRONMENT": "Development",
+          "ASPNETCORE_URLS": "http://localhost:5255"
         },
         "sourceFileMap": {
           "/Views": "${workspaceFolder}/backend/microservices/email-service/Views"
@@ -35,19 +36,35 @@
           "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
         },
         "env": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
+          "ASPNETCORE_ENVIRONMENT": "Development",
+          "ASPNETCORE_URLS": "http://localhost:5277"
         },
+        "justMyCode": false,
         "sourceFileMap": {
           "/Views": "${workspaceFolder}/backend/microservices/user-service/Views"
         }
       },
+      {
+        "name": "Strapi Service",
+        "type": "node",
+        "request": "launch",
+        "preLaunchTask": "build-strapi-service",
+        "program": "${workspaceFolder}/backend/microservices/strapi-cms-service/node_modules/strapi/bin/strapi.js", // Path to Strapi's CLI entry point
+        "cwd": "${workspaceFolder}/backend/microservices/strapi-cms-service",
+        "env": {
+          "NODE_ENV": "development"
+        },
+        "runtimeArgs": ["--inspect"], // Optional: for debugging
+        "outFiles": ["${workspaceFolder}/backend/microservices/strapi-cms-service/**/*.js"],
+        "console": "integratedTerminal"
+      }
     ],
     "compounds": [
       {
         "name": "Debug All Services",
         "configurations": [
           "Email Service",
-          "User Service",
+          "User Service"
         ]
       }
     ]
