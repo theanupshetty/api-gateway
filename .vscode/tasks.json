@@ -33,7 +33,17 @@
           "cwd": "${workspaceFolder}/backend/microservices/strapi-cms-service"
         },
         "problemMatcher": []
-      }
+      },
+      {
+        "label": "build-api-gateway",
+        "command": "dotnet",
+        "type": "process",
+        "args": [
+          "build",
+          "${workspaceFolder}/api-gateway"
+        ],
+        "problemMatcher": "$msCompile"
+      },
     ]
   }
   

@@ -57,6 +57,28 @@
         "runtimeArgs": ["--inspect"], // Optional: for debugging
         "outFiles": ["${workspaceFolder}/backend/microservices/strapi-cms-service/**/*.js"],
         "console": "integratedTerminal"
+      },
+      {
+        "name": "API Gateway",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build-api-gateway",
+        "program": "${workspaceFolder}/api-gateway/bin/Debug/net8.0/api-gateway.dll", // Adjust the path if necessary
+        "args": [],
+        "cwd": "${workspaceFolder}/api-gateway",
+        "stopAtEntry": false,
+        "serverReadyAction": {
+          "action": "openExternally",
+          "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        },
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development",
+          "ASPNETCORE_URLS": "http://localhost:8080"
+        },
+        "sourceFileMap": {
+          "/Views": "${workspaceFolder}/api-gateway/Views"
+        },
+        "justMyCode": false
       }
     ],
     "compounds": [
@@ -64,7 +86,8 @@
         "name": "Debug All Services",
         "configurations": [
           "Email Service",
-          "User Service"
+          "User Service",
+          "API Gateway"
         ]
       }
     ]

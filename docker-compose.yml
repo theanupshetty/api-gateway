@@ -1,38 +1,43 @@
 
 services:
   user-service:
-    image: anupshetty44/user-service
     build:
       context: ./backend/microservices/user-service
       dockerfile: Dockerfile
+    image: anupshetty44/user-service
     ports:
-      - "5277:80" # map external port 5277 to container port 80
+      - "5277:80"  # map external port 5277 to container port 80
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
     depends_on:
       - email-service
+    networks:
+      - microservices-network
 
   email-service:
-    image: anupshetty44/email-service
     build:
       context: ./backend/microservices/email-service
       dockerfile: Dockerfile
+    image: anupshetty44/email-service
     ports:
-      - "5255:80" # map external port 5255 to container port 80
+      - "5255:80"  # map external port 5255 to container port 80
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
     depends_on:
       - strapi-service
+    networks:
+      - microservices-network
 
+  # Optional services (inventory, order)
   # inventory-service:
-  #   image: anupshetty44/inventory-service
   #   build:
   #     context: ./backend/microservices/inventory-service
   #     dockerfile: Dockerfile
+  #   image: anupshetty44/inventory-service
   #   ports:
-  #     - "5280:80" # map external port 5280 to container port 80
+  #     - "5280:80"
   #   environment:
   #     - ASPNETCORE_ENVIRONMENT=Development
   #     - ASPNETCORE_URLS=http://+:80
@@ -41,12 +46,12 @@ services:
   #     - order-service
 
   # order-service:
-  #   image: anupshetty44/order-service
   #   build:
   #     context: ./backend/microservices/order-service
   #     dockerfile: Dockerfile
+  #   image: anupshetty44/order-service
   #   ports:
-  #     - "5281:80" # map external port 5281 to container port 80
+  #     - "5281:80"
   #   environment:
   #     - ASPNETCORE_ENVIRONMENT=Development
   #     - ASPNETCORE_URLS=http://+:80
@@ -54,26 +59,44 @@ services:
   #     - user-service
   #     - inventory-service
 
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Welcome@123
+    volumes:
+      - ./backend/microservices/strapi-cms-service/database:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   strapi-service:
     image: strapi/strapi
     build:
       context: ./backend/microservices/strapi-cms-service
-      dockerfile: Dockerfile
     ports:
       - "1337:1337" # Strapi runs on port 1337 by default
     environment:
-      - NODE_ENV=development
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 5432
+      DATABASE_NAME: strapi
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: Welcome@123
+      NODE_ENV: development
+    depends_on:
+      - postgres
     volumes:
       - ./backend/microservices/strapi-cms-service:/srv/app
+    command: strapi develop --debug
 
-  
   frontend:
-    image: node:16 # use node 16 image for React
     build:
       context: ./frontend/vanilla
       dockerfile: Dockerfile
+    image: node:16  # Node 16 image for React
     ports:
-      - "3000:3000" # React runs on port 3000
+      - "3000:3000"  # React runs on port 3000
     environment:
       - NODE_ENV=development
     volumes:
@@ -81,9 +104,22 @@ services:
     working_dir: /app
     command: ["npm", "start"]
     depends_on:
-      - strapi-service
       - user-service
       - email-service
+    networks:
+      - microservices-network
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - email-service
+    networks:
+      - microservices-network
+
 networks:
-  default:
+  microservices-network:
     driver: bridge
