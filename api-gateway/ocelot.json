@@ -1,0 +1,44 @@
+{
+    "Routes": [
+      {
+        "DownstreamPathTemplate": "/api/users/{everything}",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5277
+          }
+        ],
+        "UpstreamPathTemplate": "/gateway/users/{everything}",
+        "UpstreamHttpMethod": [ "POST" ]
+      },
+      {
+        "DownstreamPathTemplate": "/api/email/{everything}",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5255
+          }
+        ],
+        "UpstreamPathTemplate": "/gateway/email/{everything}",
+        "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+      },
+      {
+        "DownstreamPathTemplate": "/api/strapi/{everything}",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 1337
+          }
+        ],
+        "UpstreamPathTemplate": "/gateway/strapi/{everything}",
+        "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+      }
+    ],
+    "GlobalConfiguration": {
+      "BaseUrl": "http://localhost:8080"
+    }
+  }
+  
